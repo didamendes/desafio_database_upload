@@ -4,6 +4,7 @@ import { getCustomRepository, getRepository } from 'typeorm';
 import Transaction from '../models/Transaction';
 import Category from '../models/Category';
 import TransactionsRepository from '../repositories/TransactionsRepository';
+import AppError from '../errors/AppError';
 
 interface Request {
   title: string;
@@ -25,7 +26,7 @@ class CreateTransactionService {
     const { total } = await transactionRepository.getBalance();
 
     if (type === 'outcome' && total < value) {
-      throw Error('Valor maior que o total');
+      throw new AppError('Valor maior que o total', 400);
     }
 
     let categoriaAchou = await categoryRepository.findOne({
@@ -38,6 +39,8 @@ class CreateTransactionService {
       categoriaAchou = categoryRepository.create({
         title: category,
       });
+
+      await categoryRepository.save(categoriaAchou);
     }
 
     const transaction = transactionRepository.create({

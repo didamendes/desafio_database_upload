@@ -56,7 +56,7 @@ export default class CreateTransactions1605631391643
         name: 'CategoryId',
         columnNames: ['category_id'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'categorys',
+        referencedTableName: 'categories',
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
       }),

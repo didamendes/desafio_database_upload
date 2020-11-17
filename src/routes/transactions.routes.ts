@@ -1,10 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Router } from 'express';
+import multer from 'multer';
 import { getCustomRepository } from 'typeorm';
 import CreateTransactionService from '../services/CreateTransactionService';
 import TransactionsRepository from '../repositories/TransactionsRepository';
-// import DeleteTransactionService from '../services/DeleteTransactionService';
-// import ImportTransactionsService from '../services/ImportTransactionsService';
+import DeleteTransactionService from '../services/DeleteTransactionService';
+import ImportTransactionsService from '../services/ImportTransactionsService';
+
+import uploadConfig from '../config/upload';
+
+const upload = multer(uploadConfig);
 
 const transactionsRouter = Router();
 
@@ -32,11 +37,25 @@ transactionsRouter.post('/', async (request, response) => {
 });
 
 transactionsRouter.delete('/:id', async (request, response) => {
-  // TODO
+  const { id } = request.params;
+
+  const deleteTransactionService = new DeleteTransactionService();
+
+  await deleteTransactionService.execute(id);
+
+  return response.status(204).send();
 });
 
-transactionsRouter.post('/import', async (request, response) => {
-  // TODO
-});
+transactionsRouter.post(
+  '/import',
+  upload.single('file'),
+  async (request, response) => {
+    const importTransactions = new ImportTransactionsService();
+
+    const transaction = await importTransactions.execute(request.file.path);
+
+    return response.json(transaction);
+  },
+);
 
 export default transactionsRouter;
